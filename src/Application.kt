@@ -188,6 +188,8 @@ fun Route.listing(folder: File) {
                         }
                         tbody {
                             for (finfo in files) {
+                                if (finfo.name.startsWith(".")) continue
+
                                 val rname = if (finfo.directory) "${finfo.name}/" else finfo.name
                                 tr {
                                     td {
