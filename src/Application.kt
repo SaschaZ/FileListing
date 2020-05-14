@@ -22,12 +22,12 @@ import kotlin.Comparator
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused")
-fun Application.module() {
+fun Application.module(path: String = "/home/ftpusers/ftp/") {
     install(DefaultHeaders)
     install(CallLogging)
 
-    val root = File("/home/ftpusers/ftp").takeIf { it.exists() }
-        ?: error("Can't locate files folder")
+    val root = File(path).takeIf { it.exists() }
+        ?: error("Can't locate files folder ($path)")
 
     routing {
         get("/info") {
