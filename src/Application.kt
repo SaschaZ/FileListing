@@ -1,19 +1,28 @@
 package dev.zieger.file_listing
 
-import io.ktor.application.*
-import io.ktor.response.*
+import io.ktor.application.Application
+import io.ktor.application.ApplicationCall
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.features.CallLogging
+import io.ktor.features.DefaultHeaders
+import io.ktor.features.origin
+import io.ktor.html.respondHtml
+import io.ktor.http.ContentType
+import io.ktor.http.content.files
+import io.ktor.http.content.staticRootFolder
+import io.ktor.http.formUrlEncode
+import io.ktor.http.fromFilePath
 import io.ktor.request.*
-import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.html.*
-import kotlinx.html.*
-import io.ktor.content.*
-import io.ktor.http.content.*
-import io.ktor.features.*
+import io.ktor.routing.Route
+import io.ktor.routing.get
+import io.ktor.routing.route
+import io.ktor.routing.routing
 import io.ktor.util.combineSafe
 import io.ktor.util.flattenEntries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.html.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -162,6 +171,7 @@ fun Route.listing(folder: File) {
     val dateFormat = SimpleDateFormat("dd-MMM-YYYY HH:mm")
     get("{$pathParameterName...}") {
         val relativePath = call.parameters.getAll(pathParameterName)?.joinToString(File.separator) ?: return@get
+
         @Suppress("EXPERIMENTAL_API_USAGE")
         val file = dir.combineSafe(relativePath)
         if (file.isDirectory) {
@@ -188,8 +198,6 @@ fun Route.listing(folder: File) {
                         }
                         tbody {
                             for (finfo in files) {
-                                if (finfo.name.startsWith(".")) continue
-
                                 val rname = if (finfo.directory) "${finfo.name}/" else finfo.name
                                 tr {
                                     td {
@@ -225,12 +233,15 @@ suspend fun File.listSuspend(includeParent: Boolean = false): List<FileInfo> {
     val file = this
     return withContext(Dispatchers.IO) {
         listOfNotNull(if (includeParent) FileInfo("..", Date(), true, 0L) else null) +
-                file.listFiles()!!.toList().map { FileInfo(it.name, Date(it.lastModified()), it.isDirectory, it.length())
-        }.sortedWith(comparators(
-            Comparator { a, b -> -a.directory.compareTo(b.directory) },
-            Comparator { a, b -> a.name.compareTo(b.name, ignoreCase = true) }
-        ))
-    }
+                file.listFiles()!!.toList()
+                    .mapNotNull {
+                        FileInfo(it.name, Date(it.lastModified()), it.isDirectory, it.length())
+                            .let { f -> if (f.name.startsWith(".")) null else f }
+                    }
+    }.sortedWith(comparators(
+        Comparator { a, b -> -a.directory.compareTo(b.directory) },
+        Comparator { a, b -> a.name.compareTo(b.name, ignoreCase = true) }
+    ))
 }
 
 private fun File?.combine(file: File) = when {
