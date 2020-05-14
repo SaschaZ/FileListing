@@ -26,8 +26,7 @@ fun Application.module() {
     install(DefaultHeaders)
     install(CallLogging)
 
-    val root = File("other/filelisting/files").takeIf { it.exists() }
-        ?: File("files").takeIf { it.exists() }
+    val root = File("/home/ftpusers/ftp").takeIf { it.exists() }
         ?: error("Can't locate files folder")
 
     routing {
@@ -52,7 +51,7 @@ suspend fun ApplicationCall.respondInfo() {
     respondHtml {
         body {
             style {
-                +"""
+                """
                     table {
                         font: 1em Arial;
                         border: 1px solid black;
