@@ -22,7 +22,7 @@ import kotlin.Comparator
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused")
-fun Application.module(path: String = "/home/ftpusers/ftp/") {
+fun Application.module(path: String = "/srv/html-root") {
     install(DefaultHeaders)
     install(CallLogging)
 
