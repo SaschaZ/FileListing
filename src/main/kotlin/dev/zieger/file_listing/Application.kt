@@ -3,6 +3,7 @@ package dev.zieger.file_listing
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.html.*
+import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
@@ -63,7 +64,16 @@ fun main(args: Array<String>): Unit {
                             }
                         }
                         pFile.mimeType?.isText == true -> call.respondText(pFile.readText())
-                        else -> call.respondFile(pFile)
+                        else -> {
+                            call.response.header(
+                                HttpHeaders.ContentDisposition,
+                                ContentDisposition.Attachment.withParameter(
+                                    ContentDisposition.Parameters.FileName,
+                                    pFile.name
+                                ).toString()
+                            )
+                            call.respondFile(pFile)
+                        }
                     }
                 }
             }
