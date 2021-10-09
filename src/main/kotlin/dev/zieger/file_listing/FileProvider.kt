@@ -23,11 +23,10 @@ class FileProvider(private val rootFile: File) {
     }
 
     private fun File.toListItem(): ListItem = when {
-        isDirectory -> ListItem.Directory(toRelativeString(rootFile), name, TimeStamp())
+        isDirectory -> ListItem.Directory(toRelativeString(rootFile).removeSuffix("/"), name, TimeStamp())
         else -> ListItem.File(
-            toRelativeString(rootFile), name, lastModified().toTime(),
-            mimeType ?: "-",
-            length()
+            toRelativeString(rootFile).removeSuffix("/"), name, lastModified().toTime(),
+            mimeType ?: "-", length()
         )
     }
 }
