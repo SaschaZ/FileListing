@@ -25,6 +25,9 @@ fun main(args: Array<String>): Unit {
     val host = args.indexOfFirst { it == "--host" }.let { if (it < 0) null else it }
         ?.let { args.getOrNull(it + 1)?.trim() }
         ?: "localhost:$port"
+    val hostPath = args.indexOfFirst { it == "--hostPath" }.let { if (it < 0) null else it }
+        ?.let { args.getOrNull(it + 1)?.trim() }
+        ?: ""
 
     embeddedServer(Netty, port = port) {
         install(DefaultHeaders)
@@ -38,7 +41,7 @@ fun main(args: Array<String>): Unit {
             route("/") {
                 forPath { p ->
                     println("request for \"$p\"")
-                    val pFile = File(File(path + File.separatorChar + p).absolutePath)
+                    val pFile = File(File(path + File.separatorChar + p.removePrefix(hostPath)).absolutePath)
                     if (!pFile.absolutePath.contains(rootFile.absolutePath)) return@forPath
 
                     when {
