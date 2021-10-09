@@ -9,9 +9,12 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.util.pipeline.*
 import kotlinx.html.*
+import org.apache.log4j.BasicConfigurator
 import java.io.File
 
 fun main(args: Array<String>): Unit {
+    BasicConfigurator.configure()
+
     val port = args.indexOfFirst { it == "--port" }.let { if (it < 0) null else it }
         ?.let { args.getOrNull(it + 1) }
         ?.toIntOrNull()

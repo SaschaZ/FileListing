@@ -29,6 +29,8 @@ dependencies {
     implementation("dev.zieger.utils:misc:$utils_version")
     implementation("dev.zieger.utils:coroutines:$utils_version")
     implementation("dev.zieger.utils:log:$utils_version")
+
+    implementation("org.slf4j:slf4j-log4j12:1.7.32")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
@@ -39,7 +41,7 @@ tasks {
         archiveFileName.set("FileListing.jar")
         mergeServiceFiles()
         manifest {
-            attributes(mapOf("Main-Class" to "Application"))
+            attributes(mapOf("Main-Class" to "dev.zieger.file_listing.ApplicationKt"))
         }
         destinationDirectory.set(File(rootProject.projectDir.path))
     }
