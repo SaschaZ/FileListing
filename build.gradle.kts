@@ -1,13 +1,15 @@
 @file:Suppress("PropertyName")
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 val ktor_version: String by project
 val kotlin_version: String by project
 val kotlin_coroutines_version: String by project
 val utils_version: String by project
 
 plugins {
-    application
     kotlin("jvm")
+    id("com.github.johnrengelman.shadow")
 }
 
 group = "dev.zieger.file_listing"
@@ -31,3 +33,14 @@ dependencies {
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
 sourceSets["main"].resources.srcDirs("resources")
+
+tasks {
+    named<ShadowJar>("shadowJar") {
+        archiveFileName.set("FileListing.jar")
+        mergeServiceFiles()
+        manifest {
+            attributes(mapOf("Main-Class" to "Application"))
+        }
+        destinationDirectory.set(File(rootProject.projectDir.path))
+    }
+}

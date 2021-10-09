@@ -1,7 +1,9 @@
 pluginManagement {
     val kotlin_version: String by settings
+    val shadowJarVersion: String by settings
     plugins {
         id("org.jetbrains.kotlin.jvm") version kotlin_version
+        id("com.github.johnrengelman.shadow") version shadowJarVersion
     }
     repositories {
         gradlePluginPortal()
