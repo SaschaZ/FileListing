@@ -37,6 +37,7 @@ fun main(args: Array<String>): Unit {
         routing {
             route("/") {
                 forPath { p ->
+                    println("request for \"$p\"")
                     val pFile = File(File(p).absolutePath)
                     if (!pFile.absolutePath.contains(rootFile.absolutePath)) return@forPath
 
