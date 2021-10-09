@@ -21,7 +21,7 @@ fun main(args: Array<String>): Unit {
         ?: 9000
     val path = args.indexOfFirst { it == "--path" }.let { if (it < 0) null else it }
         ?.let { args.getOrNull(it + 1)?.trim() }
-        ?: ""
+        ?: "."
     val host = args.indexOfFirst { it == "--host" }.let { if (it < 0) null else it }
         ?.let { args.getOrNull(it + 1)?.trim() }
         ?: "localhost:$port"
@@ -38,7 +38,7 @@ fun main(args: Array<String>): Unit {
             route("/") {
                 forPath { p ->
                     println("request for \"$p\"")
-                    val pFile = File(File(p).absolutePath)
+                    val pFile = File(File(path + File.separatorChar + p).absolutePath)
                     if (!pFile.absolutePath.contains(rootFile.absolutePath)) return@forPath
 
                     when {
