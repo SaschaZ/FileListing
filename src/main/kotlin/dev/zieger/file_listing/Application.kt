@@ -98,9 +98,6 @@ private fun TABLE.items(host: String, content: List<TableItem>) {
                     a("http://$host/${info.link}".removeSuffix("/")) { +info.name }
                 }
                 td {
-                    +info.createdAt
-                }
-                td {
                     +info.lastModifiedAt
                 }
                 td {
