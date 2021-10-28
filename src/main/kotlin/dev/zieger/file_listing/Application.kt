@@ -117,13 +117,13 @@ private fun TABLE.items(host: String, content: List<TableItem>) {
 private fun TABLE.head() {
     thead {
         tr {
-            for (column in listOf("Name", "Created At", "Last Modified At", "Size", "MimeType")) {
+            for (column in listOf("Name", "Last Modified At", "Size", "MimeType")) {
                 th {
                     style = "width: ${
                         when (column) {
                             "Size" -> 15
                             "Name" -> 35
-                            else -> (100 - 15 - 35) / 3
+                            else -> (100 - 15 - 35) / 2
                         }.toInt()
                     }%; text-align: left;"
                     +column
