@@ -18,9 +18,9 @@ class FilePresenter {
     }
 
     private fun ListItem.toTableItem(): TableItem = when (this) {
-        is ListItem.Directory -> TableItem(name, path, lastChange.formatTime())
+        is ListItem.Directory -> TableItem(name, path, lastModifiedAt.formatTime())
         is ListItem.File -> TableItem(
-            name, path, lastChange.formatTime(),
+            name, path, createdAt.formatTime(), lastModifiedAt.formatTime(),
             size.formatSize(), type, false
         )
     }
@@ -37,7 +37,8 @@ private fun Long.formatSize(): String = when {
 data class TableItem(
     val name: String,
     val link: String,
-    val lastModified: String,
+    val createdAt: String,
+    val lastModifiedAt: String,
     val size: String = "",
     val mimeType: String = "",
     val isDirectory: Boolean = true

@@ -2,12 +2,16 @@ package dev.zieger.file_listing
 
 import dev.zieger.utils.time.ITimeStamp
 import dev.zieger.utils.time.TimeStamp
+import dev.zieger.utils.time.millis
 import dev.zieger.utils.time.toTime
 import io.ktor.http.*
 import org.apache.tika.Tika
 import java.io.File
 import java.net.URLConnection
 import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
+import java.util.concurrent.TimeUnit
+
 
 class FileProvider(private val rootFile: File) {
 
@@ -23,12 +27,23 @@ class FileProvider(private val rootFile: File) {
     }
 
     private fun File.toListItem(): ListItem = when {
-        isDirectory -> ListItem.Directory(toRelativeString(rootFile).removeSuffix("/"), name, TimeStamp())
+        isDirectory -> ListItem.Directory(toRelativeString(rootFile).removeSuffix("/"), name, createdAt, lastModifierAt)
         else -> ListItem.File(
-            toRelativeString(rootFile).removeSuffix("/"), name, lastModified().toTime(),
+            toRelativeString(rootFile).removeSuffix("/"), name, createdAt, lastModifierAt,
             mimeType ?: "-", length()
         )
     }
+
+    private val File.lastModifierAt: ITimeStamp
+        get() = Files.readAttributes(toPath(), BasicFileAttributes::class.java)
+            .lastModifiedTime().to(TimeUnit.MILLISECONDS).toTime()
+
+    private val File.createdAt: ITimeStamp
+        get() = Files.readAttributes(toPath(), BasicFileAttributes::class.java)
+            .creationTime().to(TimeUnit.MILLISECONDS).toTime()
+
+    private val File.filesRecursive: List<File>
+        get() = if (isDirectory) listFiles()?.flatMap { it.filesRecursive } ?: emptyList() else listOf(this)
 }
 
 val File.mimeType: String?
@@ -43,12 +58,14 @@ sealed class ListItem {
 
     abstract val path: String
     abstract val name: String
-    abstract val lastChange: ITimeStamp
+    abstract val createdAt: ITimeStamp
+    abstract val lastModifiedAt: ITimeStamp
 
     data class File(
         override val path: String,
         override val name: String,
-        override val lastChange: ITimeStamp,
+        override val createdAt: ITimeStamp,
+        override val lastModifiedAt: ITimeStamp,
         val type: String,
         val size: Long
     ) : ListItem()
@@ -56,6 +73,7 @@ sealed class ListItem {
     data class Directory(
         override val path: String,
         override val name: String,
-        override val lastChange: ITimeStamp
+        override val createdAt: ITimeStamp,
+        override val lastModifiedAt: ITimeStamp
     ) : ListItem()
 }
