@@ -12,13 +12,13 @@ class FilePresenter {
             .run { (get(true) ?: emptyList()) to (get(false) ?: emptyList()) }
 
         val toParent = listOfNotNull(listing.parent?.let {
-            TableItem("..", it, "")
+            TableItem("..", it, "", "")
         })
         return toParent + directories + files
     }
 
     private fun ListItem.toTableItem(): TableItem = when (this) {
-        is ListItem.Directory -> TableItem(name, path, lastModifiedAt.formatTime())
+        is ListItem.Directory -> TableItem(name, path, createdAt.formatTime(), lastModifiedAt.formatTime())
         is ListItem.File -> TableItem(
             name, path, createdAt.formatTime(), lastModifiedAt.formatTime(),
             size.formatSize(), type, false
