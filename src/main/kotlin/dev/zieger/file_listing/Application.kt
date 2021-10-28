@@ -98,7 +98,10 @@ private fun TABLE.items(host: String, content: List<TableItem>) {
                     a("http://$host/${info.link}".removeSuffix("/")) { +info.name }
                 }
                 td {
-                    +info.lastModified
+                    +info.createdAt
+                }
+                td {
+                    +info.lastModifiedAt
                 }
                 td {
                     +info.size
@@ -114,13 +117,13 @@ private fun TABLE.items(host: String, content: List<TableItem>) {
 private fun TABLE.head() {
     thead {
         tr {
-            for (column in listOf("Name", "Last Modified", "Size", "MimeType")) {
+            for (column in listOf("Name", "Created At", "Last Modified At", "Size", "MimeType")) {
                 th {
                     style = "width: ${
                         when (column) {
                             "Size" -> 15
-                            "Name" -> 45
-                            else -> (100 - 15 - 45) / 2
+                            "Name" -> 35
+                            else -> (100 - 15 - 35) / 3
                         }.toInt()
                     }%; text-align: left;"
                     +column
