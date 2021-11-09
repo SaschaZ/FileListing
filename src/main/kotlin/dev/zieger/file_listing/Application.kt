@@ -98,7 +98,7 @@ private fun TABLE.items(host: String, content: List<TableItem>) {
         for (info in content) {
             tr {
                 td {
-                    a("http://$host/${info.link}".removeSuffix("/")) { +info.name }
+                    a("https://$host/${info.link}".removeSuffix("/")) { +info.name }
                 }
                 td {
                     +info.lastModifiedAt
