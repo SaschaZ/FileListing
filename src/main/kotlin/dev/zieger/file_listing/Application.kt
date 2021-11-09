@@ -65,14 +65,16 @@ fun main(args: Array<String>): Unit {
                         }
                         pFile.mimeType?.isText == true -> call.respondText(pFile.readText())
                         else -> {
-//                            call.response.header(
-//                                HttpHeaders.ContentDisposition,
-//                                ContentDisposition.Attachment.withParameter(
-//                                    ContentDisposition.Parameters.FileName,
-//                                    pFile.name
-//                                ).toString()
-//                            )
-                            call.response.header("Content-Disposition", "attachment; filename=\"${pFile.name}\"")
+                            call.response.header(
+                                HttpHeaders.ContentDisposition,
+                                ContentDisposition.Attachment.withParameter(
+                                    ContentDisposition.Parameters.FileName,
+                                    pFile.name
+                                ).withParameter(
+                                    ContentDisposition.Parameters.Size,
+                                    "%d".format(pFile.length())
+                                ).toString()
+                            )
                             call.respondFile(pFile)
                         }
                     }
