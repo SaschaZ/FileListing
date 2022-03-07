@@ -13,11 +13,12 @@ plugins {
 }
 
 group = "dev.zieger.file_listing"
-version = "0.0.2"
+version = "0.0.3"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version")
+
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-host-common:$ktor_version")
@@ -30,7 +31,7 @@ dependencies {
     implementation("dev.zieger.utils:coroutines:$utils_version")
     implementation("dev.zieger.utils:log:$utils_version")
 
-    implementation("org.slf4j:slf4j-log4j12:1.7.32")
+    implementation("org.slf4j:slf4j-log4j12:1.7.36")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")

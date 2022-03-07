@@ -25,7 +25,7 @@ services:
       - "traefik.http.routers.filelisting.rule=(Host(`zieger.dev`) && PathPrefix(`/files`))"
       - "traefik.http.routers.filelisting.entrypoints=websecure"
       - "traefik.http.routers.filelisting.tls.certresolver=myresolver"
-      - "traefik.http.routers.filelisting.middlewares=compression, ratelimit"
+      - "traefik.http.routers.filelisting.middlewares=log4shell, autodetect, compression, ratelimit"
 
 networks:
   default:

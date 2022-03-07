@@ -1,36 +1,14 @@
-FROM openjdk:8-slim-buster
+FROM adoptopenjdk/openjdk16:x86_64-alpine-jdk-16.0.2_7 AS build
 
+# WORKDIR /tmp
 
-ENV USER filelisting
-ENV GROUP dockerbuilder
-ENV HOME_PATH /home/${USER}
-ENV PROJECT_FOLDER filelisting
-ENV PROJECT_PATH ${HOME_PATH}/${PROJECT_FOLDER}
-ENV DISTRIBUTION_NAME file_listing
-ENV DISTRIBUTION_FOLDER ${DISTRIBUTION_NAME}-0.0.2
-
-ARG port
-ARG host
-ARG hostPath
-
-WORKDIR /tmp
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends unzip \
-    && apt-get clean
-
-# Add user
-ARG user_id
-ENV USER_ID=${user_id}
-ARG group_id
-ENV GROUP_ID=${group_id}
-
-RUN addgroup --gid ${GROUP_ID} ${GROUP}
-RUN adduser --disabled-password --home ${HOME_PATH} -gecos '' --uid ${USER_ID} --gid ${GROUP_ID} ${USER}
+# RUN apt-get update \
+#     && apt-get install -y --no-install-recommends unzip \
+#     && apt-get clean
 
 # Add current content to image
-ADD --chown=${USER}:${GROUP} . ${PROJECT_PATH}
-WORKDIR ${PROJECT_PATH}
+ADD . /project
+WORKDIR /project
 
 # Remove possible temporary build files
 RUN rm -f ./local.properties && \
@@ -39,11 +17,32 @@ RUN rm -f ./local.properties && \
     rm -rf ~/.m2 && \
     rm -rf ~/.gradle
 
-USER ${USER}
 RUN ./gradlew shadowJar
 
-RUN echo "java -jar ./FileListing.jar --port $port --host $host --hostPath $hostPath --path ${HOME_PATH}/files" > ./start.sh && \
-    chmod +x ./start.sh && \
-    mkdir -p ${HOME_PATH}/files
 
+FROM adoptopenjdk/openjdk16:x86_64-alpine-jre-16.0.1_9
+
+ARG port
+ARG host
+ARG hostPath
+
+# Add user
+ENV USER filelisting
+ENV GROUP dockerbuilder
+ARG user_id
+ENV USER_ID=${user_id}
+ARG group_id
+ENV GROUP_ID=${group_id}
+
+WORKDIR /home/${USER}
+COPY --from=build /project/FileListing.jar /home/${USER}/FileListing.jar
+
+RUN addgroup --gid ${GROUP_ID} ${GROUP} && \
+    adduser --disabled-password --home /home/${USER} -gecos '' --uid ${USER_ID} --gid ${GROUP_ID} ${USER} && \
+    echo "java -jar ./FileListing.jar --port ${port} --host ${host} --hostPath ${hostPath} --path /home/${USER}/files" > ./start.sh && \
+    chmod +x ./start.sh && \
+    mkdir -p /home/${USER}/files && \
+    chown -R ${USER}:${GROUP} .
+
+USER ${USER}
 CMD [ "/bin/sh", "-c", "./start.sh" ]
