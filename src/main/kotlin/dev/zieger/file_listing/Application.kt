@@ -2,14 +2,12 @@ package dev.zieger.file_listing
 
 import io.ktor.application.*
 import io.ktor.features.*
-import io.ktor.html.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.util.pipeline.*
-import kotlinx.html.*
 import org.apache.log4j.BasicConfigurator
 import java.io.File
 
@@ -36,52 +34,55 @@ fun main(args: Array<String>): Unit {
 
         val rootFile = File(File(path).absolutePath)
         val provider = FileProvider(rootFile)
-        val presenter = FilePresenter()
+        val jsonPresenter = JsonFilePresenter()
+        val htmlPresenter = HtmlFilePresenter()
 
         routing {
             route("/") {
-                forPath { p ->
-                    println("request for \"$p\"")
-                    val pFile = File(File(path + File.separatorChar + p.removePrefix(hostPath)).absolutePath)
-                    if (!pFile.absolutePath.contains(rootFile.absolutePath)) return@forPath
-
-                    when {
-                        pFile.isDirectory -> {
-                            val content = presenter.present(provider.provide(pFile))
-                            call.respondHtml {
-                                body {
-                                    h1 {
-                                        +"Index of $p/"
-                                    }
-                                    hr {}
-                                    table {
-                                        style = "width: 100%;"
-                                        head()
-                                        items(host, content)
-                                    }
-                                    hr {}
-                                }
-                            }
-                        }
-                        pFile.mimeType?.isText == true -> call.respondText(pFile.readText())
-                        else -> {
-                            call.response.header(
-                                HttpHeaders.ContentDisposition,
-                                ContentDisposition.Attachment.withParameter(
-                                    ContentDisposition.Parameters.FileName,
-                                    pFile.name
-                                ).withParameter(
-                                    ContentDisposition.Parameters.Size,
-                                    "%d".format(pFile.length())
-                                ).toString()
-                            )
-                            call.respondFile(pFile)
-                        }
-                    }
+                accept(ContentType.Application.Json) {
+                    route(path, host, hostPath, rootFile, provider, jsonPresenter)
+                }
+                accept(ContentType.Text.Html) {
+                    route(path, host, hostPath, rootFile, provider, htmlPresenter)
                 }
             }
         }
     }.start(wait = true)
+}
+
+private fun Route.route(
+    path: String,
+    host: String,
+    hostPath: String,
+    rootFile: File,
+    provider: FileProvider,
+    presenter: IFilePresenter
+) {
+    forPath { p ->
+        println("request for \"$p\"")
+        val pFile = File(File(path + File.separatorChar + p.removePrefix(hostPath)).absolutePath)
+        if (!pFile.absolutePath.contains(rootFile.absolutePath)) return@forPath
+
+        when {
+            pFile.isDirectory -> {
+                presenter.present(provider.provide(pFile), call, p, host)
+            }
+            pFile.mimeType?.isText == true -> call.respondText(pFile.readText())
+            else -> {
+                call.response.header(
+                    HttpHeaders.ContentDisposition,
+                    ContentDisposition.Attachment.withParameter(
+                        ContentDisposition.Parameters.FileName,
+                        pFile.name
+                    ).withParameter(
+                        ContentDisposition.Parameters.Size,
+                        "%d".format(pFile.length())
+                    ).toString()
+                )
+                call.respondFile(pFile)
+            }
+        }
+    }
 }
 
 private val String.isText: Boolean
@@ -93,45 +94,6 @@ private val String.isText: Boolean
         else -> false
     }
 
-private fun TABLE.items(host: String, content: List<TableItem>) {
-    tbody {
-        for (info in content) {
-            tr {
-                td {
-                    a("https://$host/${info.link}".removeSuffix("/")) { +info.name }
-                }
-                td {
-                    +info.lastModifiedAt
-                }
-                td {
-                    +info.size
-                }
-                td {
-                    +info.mimeType
-                }
-            }
-        }
-    }
-}
-
-private fun TABLE.head() {
-    thead {
-        tr {
-            for (column in listOf("Name", "Last Modified At", "Size", "MimeType")) {
-                th {
-                    style = "width: ${
-                        when (column) {
-                            "Size" -> 15
-                            "Name" -> 35
-                            else -> (100 - 15 - 35) / 2
-                        }.toInt()
-                    }%; text-align: left;"
-                    +column
-                }
-            }
-        }
-    }
-}
 
 private fun Route.forPath(block: suspend PipelineContext<Unit, ApplicationCall>.(String) -> Unit) {
     val pathParameterName = "static-content-path-parameter"
