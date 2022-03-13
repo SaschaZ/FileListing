@@ -1,10 +1,9 @@
 package dev.zieger.file_listing
 
 import dev.zieger.utils.time.ITimeStamp
-import dev.zieger.utils.time.TimeStamp
-import dev.zieger.utils.time.millis
 import dev.zieger.utils.time.toTime
 import io.ktor.http.*
+import kotlinx.serialization.Serializable
 import org.apache.tika.Tika
 import java.io.File
 import java.net.URLConnection
@@ -52,8 +51,10 @@ val File.mimeType: String?
         ?: Files.probeContentType(toPath())
         ?: URLConnection.guessContentTypeFromName(name)
 
+@Serializable
 data class Listing(val parent: String?, val items: List<ListItem>)
 
+@Serializable
 sealed class ListItem {
 
     abstract val path: String
@@ -61,15 +62,17 @@ sealed class ListItem {
     abstract val createdAt: ITimeStamp
     abstract val lastModifiedAt: ITimeStamp
 
+    @Serializable
     data class File(
         override val path: String,
         override val name: String,
         override val createdAt: ITimeStamp,
         override val lastModifiedAt: ITimeStamp,
-        val type: String,
+        val mimeType: String,
         val size: Long
     ) : ListItem()
 
+    @Serializable
     data class Directory(
         override val path: String,
         override val name: String,

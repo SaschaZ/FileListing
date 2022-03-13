@@ -9,22 +9,26 @@ val utils_version: String by project
 
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization")
     id("com.github.johnrengelman.shadow")
 }
 
 group = "dev.zieger.file_listing"
-version = "0.0.3"
+version = "0.0.4"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version")
+
+    val kotlinSerializationVersion: String by project
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
 
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-host-common:$ktor_version")
     implementation("io.ktor:ktor-html-builder:$ktor_version")
 
-    implementation("org.apache.tika:tika-core:2.1.0")
+    implementation("org.apache.tika:tika-core:2.3.0")
 
     implementation("dev.zieger.utils:time:$utils_version")
     implementation("dev.zieger.utils:misc:$utils_version")

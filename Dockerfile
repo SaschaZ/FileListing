@@ -1,11 +1,5 @@
 FROM adoptopenjdk/openjdk16:x86_64-alpine-jdk-16.0.2_7 AS build
 
-# WORKDIR /tmp
-
-# RUN apt-get update \
-#     && apt-get install -y --no-install-recommends unzip \
-#     && apt-get clean
-
 # Add current content to image
 ADD . /project
 WORKDIR /project
