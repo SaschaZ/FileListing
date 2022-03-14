@@ -2,6 +2,7 @@ package dev.zieger.file_listing
 
 import dev.zieger.utils.time.timeSerializerModule
 import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.response.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -14,6 +15,6 @@ class JsonFilePresenter : IFilePresenter {
     }
 
     override suspend fun present(listing: Listing, call: ApplicationCall, path: String, host: String) {
-        call.respondText(json.encodeToString(listing))
+        call.respondText(json.encodeToString(listing), ContentType.Application.Json)
     }
 }
