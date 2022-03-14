@@ -3,6 +3,7 @@ package dev.zieger.file_listing
 import dev.zieger.utils.time.ITimeStamp
 import dev.zieger.utils.time.toTime
 import io.ktor.http.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.apache.tika.Tika
 import java.io.File
@@ -52,6 +53,7 @@ val File.mimeType: String?
         ?: URLConnection.guessContentTypeFromName(name)
 
 @Serializable
+@SerialName("Listing")
 data class Listing(val parent: String?, val items: List<ListItem>)
 
 @Serializable
@@ -63,6 +65,7 @@ sealed class ListItem {
     abstract val lastModifiedAt: ITimeStamp
 
     @Serializable
+    @SerialName("File")
     data class File(
         override val path: String,
         override val name: String,
@@ -73,6 +76,7 @@ sealed class ListItem {
     ) : ListItem()
 
     @Serializable
+    @SerialName("Directory")
     data class Directory(
         override val path: String,
         override val name: String,
