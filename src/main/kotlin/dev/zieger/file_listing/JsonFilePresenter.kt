@@ -12,6 +12,7 @@ class JsonFilePresenter : IFilePresenter {
     private val json = Json {
         serializersModule = timeSerializerModule
         prettyPrint = true
+        classDiscriminator = "class"
     }
 
     override suspend fun present(listing: Listing, call: ApplicationCall, path: String, host: String) {
