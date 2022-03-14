@@ -71,7 +71,7 @@ private fun Route.route(
             else -> {
                 call.response.header(
                     HttpHeaders.ContentDisposition,
-                    ContentDisposition.Attachment.withParameter(
+                    ContentDisposition.File.withParameter(
                         ContentDisposition.Parameters.FileName,
                         pFile.name
                     ).withParameter(
