@@ -39,7 +39,7 @@ fun main(args: Array<String>): Unit {
         val htmlPresenter = HtmlFilePresenter()
 
         routing {
-            get("/styles.css") {
+            get("/files/styles.css") {
                 call.respondCss {
                     htmlPresenter.buildCss(this)
                 }
