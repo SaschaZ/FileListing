@@ -36,7 +36,7 @@ class HtmlFilePresenter : IFilePresenter {
         val content = toParent + directories + files
         call.respondHtml {
             head {
-                link(rel = "stylesheet", href = "/styles.css", type = "text/css")
+                link(rel = "stylesheet", href = "/$path/styles.css", type = "text/css")
             }
             body {
                 h1 {
