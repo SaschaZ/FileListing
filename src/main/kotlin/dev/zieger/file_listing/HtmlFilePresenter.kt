@@ -3,6 +3,7 @@ package dev.zieger.file_listing
 import dev.zieger.utils.misc.format
 import io.ktor.application.*
 import io.ktor.html.*
+import kotlinx.css.*
 import kotlinx.html.*
 
 interface IFilePresenter {
@@ -10,6 +11,17 @@ interface IFilePresenter {
 }
 
 class HtmlFilePresenter : IFilePresenter {
+
+    fun buildCss(cssBuilder: CssBuilder) = cssBuilder.apply {
+        body {
+            backgroundColor = Color.black
+            color = Color.white
+            margin(0.px)
+        }
+        a {
+            color = Color.white
+        }
+    }
 
     override suspend fun present(listing: Listing, call: ApplicationCall, path: String, host: String) {
         val (directories, files) = listing.items
@@ -23,6 +35,9 @@ class HtmlFilePresenter : IFilePresenter {
         })
         val content = toParent + directories + files
         call.respondHtml {
+            head {
+                link(rel = "stylesheet", href = "/styles.css", type = "text/css")
+            }
             body {
                 h1 {
                     +"Index of $path/"
@@ -31,7 +46,7 @@ class HtmlFilePresenter : IFilePresenter {
                 table {
                     style = "width: 100%;"
                     head()
-                    items(host, content)
+                    items(host, content, call.request.local.scheme)
                 }
                 hr {}
             }
@@ -51,13 +66,19 @@ class HtmlFilePresenter : IFilePresenter {
             tr {
                 for (column in listOf("Name", "Last Modified At", "Size", "MimeType")) {
                     th {
-                        style = "width: ${
-                            when (column) {
-                                "Size" -> 15
-                                "Name" -> 35
-                                else -> (100 - 15 - 35) / 2
-                            }.toInt()
-                        }%; text-align: left;"
+                        style = CssBuilder().apply {
+                            width = LinearDimension(
+                                "${
+                                    when (column) {
+                                        "Size" -> 15
+                                        "Name" -> 35
+                                        else -> (100 - 15 - 35) / 2
+                                    }.toInt()
+                                }%}"
+                            )
+                            textAlign = TextAlign.left
+                        }.toString()
+
                         +column
                     }
                 }
@@ -65,12 +86,12 @@ class HtmlFilePresenter : IFilePresenter {
         }
     }
 
-    private fun TABLE.items(host: String, content: List<TableItem>) {
+    private fun TABLE.items(host: String, content: List<TableItem>, scheme: String) {
         tbody {
             for (info in content) {
                 tr {
                     td {
-                        a("https://$host/${info.link}".removeSuffix("/")) { +info.name }
+                        a("$scheme://$host/${info.link}".removeSuffix("/")) { +info.name }
                     }
                     td {
                         +info.lastModifiedAt

@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "dev.zieger.file_listing"
-version = "0.0.4"
+version = "0.0.5"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
@@ -27,6 +27,8 @@ dependencies {
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-host-common:$ktor_version")
     implementation("io.ktor:ktor-html-builder:$ktor_version")
+    val ktor_css_version: String by project
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-css:$ktor_css_version")
 
     implementation("org.apache.tika:tika-core:2.3.0")
 

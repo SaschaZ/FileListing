@@ -8,6 +8,7 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.util.pipeline.*
+import kotlinx.css.CssBuilder
 import org.apache.log4j.BasicConfigurator
 import java.io.File
 
@@ -38,6 +39,12 @@ fun main(args: Array<String>): Unit {
         val htmlPresenter = HtmlFilePresenter()
 
         routing {
+            get("/styles.css") {
+                call.respondCss {
+                    htmlPresenter.buildCss(this)
+                }
+            }
+
             route("/") {
                 accept(ContentType.Application.Json) {
                     route(path, host, hostPath, rootFile, provider, jsonPresenter)
@@ -101,4 +108,8 @@ private fun Route.forPath(block: suspend PipelineContext<Unit, ApplicationCall>.
         val relativePath = call.parameters.getAll(pathParameterName)?.joinToString(File.separator) ?: return@get
         block(relativePath)
     }
+}
+
+private suspend inline fun ApplicationCall.respondCss(builder: CssBuilder.() -> Unit) {
+    this.respondText(CssBuilder().apply(builder).toString(), ContentType.Text.CSS)
 }
